@@ -1,0 +1,54 @@
+name: Build Single Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      renpy_version:
+        description: 'RenPy version (e.g. 7.4.11)'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: macos-13
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download RenPy SDK
+        run: |
+          VERSION="${{ github.event.inputs.renpy_version }}"
+          curl -L "https://www.renpy.org/dl/${VERSION}/renpy-${VERSION}-sdk.tar.bz2" \
+            -o renpy-sdk.tar.bz2
+
+      - name: Extract SDK
+        run: |
+          tar -xjf renpy-sdk.tar.bz2
+
+      - name: Build Mac package
+        run: |
+          VERSION="${{ github.event.inputs.renpy_version }}"
+          mkdir -p output
+          "./renpy-${VERSION}-sdk/renpy.sh" launcher distribute stub_project \
+            --package mac \
+            --destination ./output \
+            --no-update
+
+      - name: Debug - print output structure
+        run: find ./output -print | sort
+
+      - name: Rename artifact
+        run: |
+          VERSION="${{ github.event.inputs.renpy_version }}"
+          ZIP=$(find ./output -name "*.zip" | head -1)
+          mv "$ZIP" "./renpy-${VERSION}-mac-stub.zip"
+
+      - name: Create or update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v${{ github.event.inputs.renpy_version }}"
+          name: "RenPy ${{ github.event.inputs.renpy_version }} Mac Stub"
+          files: "renpy-${{ github.event.inputs.renpy_version }}-mac-stub.zip"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
