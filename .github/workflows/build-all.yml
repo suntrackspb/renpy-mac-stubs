@@ -3,6 +3,9 @@ name: Build All Versions
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: macos-14
