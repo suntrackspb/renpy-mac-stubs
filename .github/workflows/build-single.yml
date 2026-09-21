@@ -30,7 +30,7 @@ jobs:
         run: |
           VERSION="${{ github.event.inputs.renpy_version }}"
           mkdir -p output
-          "./renpy-${VERSION}-sdk/renpy.sh" launcher distribute stub_project \
+          "./renpy-${VERSION}-sdk/renpy.sh" "./renpy-${VERSION}-sdk/launcher" distribute "$(pwd)/stub_project" \
             --package mac \
             --destination ./output \
             --no-update

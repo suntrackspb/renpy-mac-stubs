@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: macos-14
 
     strategy:
       fail-fast: false
@@ -45,7 +45,7 @@ jobs:
         run: |
           VERSION="${{ matrix.version }}"
           mkdir -p output
-          "./renpy-${VERSION}-sdk/renpy.sh" launcher distribute stub_project \
+          "./renpy-${VERSION}-sdk/renpy.sh" "./renpy-${VERSION}-sdk/launcher" distribute "$(pwd)/stub_project" \
             --package mac \
             --destination ./output \
             --no-update
